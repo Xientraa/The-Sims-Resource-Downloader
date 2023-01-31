@@ -1,6 +1,10 @@
-import requests, time
+import requests, time, json, os
 from TSRUrl import TSRUrl
 from exceptions import *
+
+CONFIG = json.load(
+    open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
+)
 
 
 class TSRDownload:
@@ -22,7 +26,7 @@ class TSRDownload:
         fileName = request.headers["Content-Disposition"][
             22:-1
         ]  # Remove 'attachment; filename="' from header
-        file = open(f"./{fileName}", "wb")
+        file = open(f"{CONFIG['downloadDirectory']}/{fileName}", "wb")
 
         for chunk in request.iter_content(1024 * 1024):
             file.write(chunk)
