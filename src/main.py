@@ -1,4 +1,5 @@
 from TSRUrl import TSRUrl
+from time import sleep
 
 
 if __name__ == "__main__":
@@ -6,3 +7,5 @@ if __name__ == "__main__":
     print(url.getTSRDLTicketCookie())
     print(url.getDownloadWaitPageURL())
     print(url.initiatedAt)
+    sleep(16)
+    print(url.getDownloadURL())
