@@ -13,4 +13,7 @@ class TSRUrl:
 
     @classmethod
     def __isValidUrl(self, url: str) -> bool:
-        return re.search("thesimsresource.com/downloads/details/id/[\d]+", url) != None
+        return (
+            re.search("thesimsresource.com/", url) != None
+            and re.search("(?<=/id/)[\d]+", url) != None
+        )

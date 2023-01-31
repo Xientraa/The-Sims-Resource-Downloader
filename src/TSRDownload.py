@@ -12,7 +12,7 @@ class TSRDownload:
         self.__getTSRDLTicketCookie()
 
     @classmethod
-    def download(self):
+    def download(self) -> bool:
         timeToSleep = 15000 - (time.time() * 1000 - self.tickedInitializedTime)
         if timeToSleep > 0:
             time.sleep(timeToSleep / 1000)
@@ -27,6 +27,7 @@ class TSRDownload:
         for chunk in request.iter_content(1024 * 1024):
             file.write(chunk)
         file.close()
+        return True
 
     @classmethod
     def __getDownloadUrl(self) -> str:
