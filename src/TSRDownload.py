@@ -18,13 +18,15 @@ class TSRDownload:
             time.sleep(timeToSleep / 1000)
 
         downloadUrl = self.__getDownloadUrl()
-        file = self.session.get(downloadUrl)
-        fileName = file.headers["Content-Disposition"][
+        request = self.session.get(downloadUrl, stream=True)
+        fileName = request.headers["Content-Disposition"][
             22:-1
         ]  # Remove 'attachment; filename="' from header
+        file = open(f"./{fileName}", "wb")
 
-        with open(f"./{fileName}", "wb") as f:
-            f.write(file.content)
+        for chunk in request.iter_content(1024 * 1024):
+            file.write(chunk)
+        file.close()
 
     @classmethod
     def __getDownloadUrl(self) -> str:
