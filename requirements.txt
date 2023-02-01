@@ -1,0 +1,2 @@
+clipboard==0.0.4
+requests==2.28.1
