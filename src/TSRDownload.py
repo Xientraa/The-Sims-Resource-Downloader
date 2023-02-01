@@ -1,8 +1,9 @@
 import requests, time, json, os
 from TSRUrl import TSRUrl
 from exceptions import *
+from typings import *
 
-CONFIG = json.load(
+CONFIG: CONFIG_DICT = json.load(
     open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
 )
 

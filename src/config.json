@@ -1,3 +1,4 @@
 {
-    "downloadDirectory": "./"
+    "downloadDirectory": "./",
+    "maxDownloads": 4
 }
