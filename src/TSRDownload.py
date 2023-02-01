@@ -13,12 +13,12 @@ class TSRDownload:
     def __init__(self, url: TSRUrl):
         self.session: requests.Session = requests.Session()
         self.url: TSRUrl = url
-        self.tickedInitializedTime: float = -1.0
+        self.ticketInitializedTime: float = -1.0
         self.__getTSRDLTicketCookie()
 
     @classmethod
     def download(self) -> bool:
-        timeToSleep = 15000 - (time.time() * 1000 - self.tickedInitializedTime)
+        timeToSleep = 15000 - (time.time() * 1000 - self.ticketInitializedTime)
         if timeToSleep > 0:
             time.sleep(timeToSleep / 1000)
 
@@ -57,5 +57,5 @@ class TSRDownload:
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )
         self.session.get(self.url.downloadUrl)
-        self.tickedInitializedTime = time.time() * 1000
+        self.ticketInitializedTime = time.time() * 1000
         return response.cookies.get("tsrdlticket")
