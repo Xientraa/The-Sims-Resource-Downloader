@@ -54,16 +54,21 @@ if __name__ == "__main__":
 
             try:
                 url = TSRUrl(pastedText)
+                requirements = TSRUrl.getRequiredItems(url)
                 Logger.info(f"Found valid url in clipboard: {url.url}")
-                if len(runningDownloads) == CONFIG["maxDownloads"]:
-                    Logger.info(
-                        f"Added url to queue (#{len(downloadQueue)}): {url.url}"
-                    )
-                    downloadQueue.append(url.url)
-                else:
-                    runningDownloads.append(url.url)
-                    pool = Pool(1)
-                    pool.apply_async(processTarget, args=[url], callback=callback)
+                if len(requirements) != 0:
+                    Logger.info(f"{url.url} has {len(requirements)} requirements")
+
+                for url in [url, *requirements]:
+                    if len(runningDownloads) == CONFIG["maxDownloads"]:
+                        Logger.info(
+                            f"Added url to queue (#{len(downloadQueue)}): {url.url}"
+                        )
+                        downloadQueue.append(url.url)
+                    else:
+                        runningDownloads.append(url.url)
+                        pool = Pool(1)
+                        pool.apply_async(processTarget, args=[url], callback=callback)
             except InvalidURL:
                 pass
 

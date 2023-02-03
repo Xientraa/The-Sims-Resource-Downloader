@@ -1,5 +1,5 @@
 from exceptions import InvalidURL
-import re
+import re, requests
 
 
 class TSRUrl:
@@ -25,4 +25,20 @@ class TSRUrl:
         return (
             re.search("thesimsresource.com/", url) != None
             and self.__getItemId(url) != None
+        )
+
+    @staticmethod
+    def getRequiredItems(url: "TSRUrl") -> list["TSRUrl"]:
+        def convertHrefToTSRUrl(href: str) -> TSRUrl:
+            return TSRUrl(f"https://www.thesimsresource.com{href}")
+
+        r = requests.get(f"https://www.thesimsresource.com/downloads/{url.itemId}")
+        return list(
+            map(
+                convertHrefToTSRUrl,
+                re.findall(
+                    '(?<=<li class="required-download-item"><a href=")/downloads/[\d]+(?=")',
+                    r.text,
+                ),
+            )
         )
