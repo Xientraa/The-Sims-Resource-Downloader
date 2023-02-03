@@ -15,9 +15,7 @@ if __name__ == "__main__":
     downloadQueue: list[str] = []
 
     def processTarget(url: TSRUrl):
-        Logger.info(f"Getting 'tsrdlticket' cookie for: {url.url}")
         downloader = TSRDownload(url)
-        Logger.info(f"Starting download for: {url.url}")
         if downloader.download():
             Logger.info(f"Completed download for: {url.url}")
 
