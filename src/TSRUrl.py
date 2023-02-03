@@ -13,8 +13,10 @@ class TSRUrl:
 
     @classmethod
     def __getItemId(self, url: str) -> int | None:
-        itemId = re.search("(?<=/id/)[\d]+", url) or re.search(
-            "(?<=/itemId/)[\d]+", url
+        itemId = (
+            re.search("(?<=/id/)[\d]+", url)
+            or re.search("(?<=/itemId/)[\d]+", url)
+            or re.search("(?<=.com/downloads/)[\d]+", url)
         )
         return None if itemId == None else int(itemId[0])
 
