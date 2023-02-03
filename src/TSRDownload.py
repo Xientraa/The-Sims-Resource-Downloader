@@ -52,7 +52,6 @@ class TSRDownload:
 
     @classmethod
     def __getTSRDLTicketCookie(self) -> str:
-        self.session.get(self.url.url)
         response = self.session.get(
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )
