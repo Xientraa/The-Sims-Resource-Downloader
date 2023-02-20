@@ -10,6 +10,7 @@ if __name__ == "__main__":
     CONFIG: CONFIG_DICT = json.load(
         open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
     )
+    URLS_PATH = os.path.dirname(os.path.abspath(__file__)) + "/urls.txt"
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
@@ -23,8 +24,18 @@ if __name__ == "__main__":
 
     def callback(url: TSRUrl):
         runningDownloads.remove(url.url)
+        updateUrlFile()
         if len(runningDownloads) == 0:
             Logger.info("All downloads have been completed")
+
+    def updateUrlFile():
+        open(URLS_PATH, "w").write("\n".join([*runningDownloads, *downloadQueue]))
+
+    if os.path.exists(URLS_PATH):
+        for url in open(URLS_PATH, "r").read().split("\n"):
+            if url.strip() == "" or url in downloadQueue:
+                continue
+            downloadQueue.append(url.strip())
 
     while True:
         pastedText = clipboard.paste()
@@ -44,14 +55,6 @@ if __name__ == "__main__":
                     Logger.info("Queue is now empty")
         else:
             lastPastedText = pastedText
-            if pastedText in runningDownloads:
-                Logger.info(f"Url is already being downloaded: {pastedText}")
-                continue
-            if pastedText in downloadQueue:
-                Logger.info(
-                    f"Url is already in queue (#{downloadQueue.index(pastedText)}): {pastedText}"
-                )
-
             try:
                 url = TSRUrl(pastedText)
                 requirements = TSRUrl.getRequiredItems(url)
@@ -60,6 +63,15 @@ if __name__ == "__main__":
                     Logger.info(f"{url.url} has {len(requirements)} requirements")
 
                 for url in [url, *requirements]:
+                    if url.url in runningDownloads:
+                        Logger.info(f"Url is already being downloaded: {url.url}")
+                        continue
+                    if url.url in downloadQueue:
+                        Logger.info(
+                            f"Url is already in queue (#{downloadQueue.index(url.url)}): {url.url}"
+                        )
+                        continue
+
                     if len(runningDownloads) == CONFIG["maxDownloads"]:
                         Logger.info(
                             f"Added url to queue (#{len(downloadQueue)}): {url.url}"
@@ -69,6 +81,7 @@ if __name__ == "__main__":
                         runningDownloads.append(url.url)
                         pool = Pool(1)
                         pool.apply_async(processTarget, args=[url], callback=callback)
+                updateUrlFile()
             except InvalidURL:
                 pass
 

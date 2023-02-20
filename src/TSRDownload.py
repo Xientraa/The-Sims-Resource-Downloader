@@ -39,7 +39,7 @@ class TSRDownload:
         )
         file = open(f"{CONFIG['downloadDirectory']}/{fileName}.part", "wb")
 
-        for chunk in request.iter_content(1024 * 1024):
+        for chunk in request.iter_content(1024 * 128):
             file.write(chunk)
         file.close()
         os.rename(
