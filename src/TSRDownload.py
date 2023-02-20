@@ -1,4 +1,4 @@
-import requests, time, json, os
+import requests, time, json, os, re
 from TSRUrl import TSRUrl
 from logger import Logger
 from exceptions import *
@@ -25,16 +25,35 @@ class TSRDownload:
             time.sleep(timeToSleep / 1000)
 
         downloadUrl = self.__getDownloadUrl()
-        request = self.session.get(downloadUrl, stream=True)
-        fileName = request.headers["Content-Disposition"][
-            22:-1
-        ]  # Remove 'attachment; filename="' from header
-        file = open(f"{CONFIG['downloadDirectory']}/{fileName}", "wb")
+        fileName = self.__getFileName(downloadUrl)
+
+        startingBytes = (
+            os.path.getsize(f"{CONFIG['downloadDirectory']}/{fileName}.part")
+            if os.path.exists(f"{CONFIG['downloadDirectory']}/{fileName}.part")
+            else 0
+        )
+        request = self.session.get(
+            downloadUrl,
+            stream=True,
+            headers={"Range": f"bytes={startingBytes}-"},
+        )
+        file = open(f"{CONFIG['downloadDirectory']}/{fileName}.part", "wb")
 
         for chunk in request.iter_content(1024 * 1024):
             file.write(chunk)
         file.close()
+        os.rename(
+            f"{CONFIG['downloadDirectory']}/{fileName}.part",
+            f"{CONFIG['downloadDirectory']}/{fileName}",
+        )
         return True
+
+    @classmethod
+    def __getFileName(self, downloadUrl: str) -> str:
+        return re.search(
+            '(?<=filename=").+(?=")',
+            requests.get(downloadUrl, stream=True).headers["Content-Disposition"],
+        )[0]
 
     @classmethod
     def __getDownloadUrl(self) -> str:
