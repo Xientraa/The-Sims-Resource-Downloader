@@ -29,9 +29,10 @@ if __name__ == "__main__":
             Logger.info("All downloads have been completed")
 
     def updateUrlFile():
-        open(URLS_PATH, "w").write("\n".join([*runningDownloads, *downloadQueue]))
+        if CONFIG["saveDownloadQueue"]:
+            open(URLS_PATH, "w").write("\n".join([*runningDownloads, *downloadQueue]))
 
-    if os.path.exists(URLS_PATH):
+    if os.path.exists(URLS_PATH) and CONFIG["saveDownloadQueue"]:
         for url in open(URLS_PATH, "r").read().split("\n"):
             if url.strip() == "" or url in downloadQueue:
                 continue

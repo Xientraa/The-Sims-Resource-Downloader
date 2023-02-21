@@ -1,4 +1,5 @@
 {
     "downloadDirectory": "./",
-    "maxDownloads": 4
+    "maxDownloads": 4,
+    "saveDownloadQueue": true
 }
