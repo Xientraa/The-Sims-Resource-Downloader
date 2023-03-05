@@ -6,6 +6,21 @@ from typings import *
 from multiprocessing import Pool
 import clipboard, time, json, os
 
+
+def processTarget(url: TSRUrl):
+    downloader = TSRDownload(url)
+    if downloader.download():
+        Logger.info(f"Completed download for: {url.url}")
+
+    return url
+
+
+def callback(url: TSRUrl):
+    runningDownloads.remove(url.url)
+    if len(runningDownloads) == 0:
+        Logger.info("All downloads have been completed")
+
+
 if __name__ == "__main__":
     CONFIG: CONFIG_DICT = json.load(
         open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
@@ -13,18 +28,6 @@ if __name__ == "__main__":
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
-
-    def processTarget(url: TSRUrl):
-        downloader = TSRDownload(url)
-        if downloader.download():
-            Logger.info(f"Completed download for: {url.url}")
-
-        return url
-
-    def callback(url: TSRUrl):
-        runningDownloads.remove(url.url)
-        if len(runningDownloads) == 0:
-            Logger.info("All downloads have been completed")
 
     while True:
         pastedText = clipboard.paste()
