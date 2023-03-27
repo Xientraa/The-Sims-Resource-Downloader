@@ -12,9 +12,9 @@ CONFIG: CONFIG_DICT = json.load(
 
 class TSRDownload:
     @classmethod
-    def __init__(self, url: TSRUrl, session: TSRSession):
+    def __init__(self, url: TSRUrl, sessionId: str):
         self.session: requests.Session = requests.Session()
-        self.session.cookies.set("tsrdlsession", session.tsrdlsession)
+        self.session.cookies.set("tsrdlsession", sessionId)
 
         self.url: TSRUrl = url
         self.ticketInitializedTime: float = -1.0
