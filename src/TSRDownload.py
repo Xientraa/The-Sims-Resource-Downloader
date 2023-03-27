@@ -1,4 +1,5 @@
 import requests, time, json, os, re
+from TSRSession import TSRSession
 from TSRUrl import TSRUrl
 from logger import Logger
 from exceptions import *
@@ -11,8 +12,10 @@ CONFIG: CONFIG_DICT = json.load(
 
 class TSRDownload:
     @classmethod
-    def __init__(self, url: TSRUrl):
+    def __init__(self, url: TSRUrl, session: TSRSession):
         self.session: requests.Session = requests.Session()
+        self.session.cookies.set("tsrdlsession", session.tsrdlsession)
+
         self.url: TSRUrl = url
         self.ticketInitializedTime: float = -1.0
         self.__getTSRDLTicketCookie()

@@ -168,3 +168,5 @@ poetry.toml
 
 # Script Created Files
 src/urls.txt
+captcha.png
+session

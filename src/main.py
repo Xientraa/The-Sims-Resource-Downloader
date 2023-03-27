@@ -4,36 +4,54 @@ from logger import Logger
 from exceptions import *
 from typings import *
 from multiprocessing import Pool
+from TSRSession import TSRSession
 import clipboard, time, json, os
 
+
+def processTarget(url: TSRUrl):
+    downloader = TSRDownload(url, session)
+    if downloader.download():
+        Logger.info(f"Completed download for: {url.url}")
+
+    return url
+
+
+def callback(url: TSRUrl):
+    runningDownloads.remove(url.url)
+    updateUrlFile()
+    if len(runningDownloads) == 0:
+        Logger.info("All downloads have been completed")
+
+
+def updateUrlFile():
+    if CONFIG["saveDownloadQueue"]:
+        open(CURRENT_DIR + "/urls.txt", "w").write(
+            "\n".join([*runningDownloads, *downloadQueue])
+        )
+
+
 if __name__ == "__main__":
-    CONFIG: CONFIG_DICT = json.load(
-        open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
-    )
-    URLS_PATH = os.path.dirname(os.path.abspath(__file__)) + "/urls.txt"
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    CONFIG: CONFIG_DICT = json.load(open(CURRENT_DIR + "/config.json", "r"))
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
 
-    def processTarget(url: TSRUrl):
-        downloader = TSRDownload(url)
-        if downloader.download():
-            Logger.info(f"Completed download for: {url.url}")
+    session = None
+    sessionId = None
+    if os.path.exists(CURRENT_DIR + "/session"):
+        sessionId = open(CURRENT_DIR + "/session", "r").read()
 
-        return url
+    while session is None:
+        try:
+            session = TSRSession(sessionId)
+            if hasattr(session, "tsrdlsession"):
+                open(CURRENT_DIR + "/session", "w").write(session.tsrdlsession)
+        except InvalidCaptchaCode:
+            sessionId = None
 
-    def callback(url: TSRUrl):
-        runningDownloads.remove(url.url)
-        updateUrlFile()
-        if len(runningDownloads) == 0:
-            Logger.info("All downloads have been completed")
-
-    def updateUrlFile():
-        if CONFIG["saveDownloadQueue"]:
-            open(URLS_PATH, "w").write("\n".join([*runningDownloads, *downloadQueue]))
-
-    if os.path.exists(URLS_PATH) and CONFIG["saveDownloadQueue"]:
-        for url in open(URLS_PATH, "r").read().split("\n"):
+    if os.path.exists(CURRENT_DIR + "/urls.txt") and CONFIG["saveDownloadQueue"]:
+        for url in open(CURRENT_DIR + "/urls.txt", "r").read().split("\n"):
             if url.strip() == "" or url in downloadQueue:
                 continue
             downloadQueue.append(url.strip())
