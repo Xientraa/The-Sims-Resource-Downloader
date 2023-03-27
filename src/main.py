@@ -23,19 +23,24 @@ def callback(url: TSRUrl):
 
 
 if __name__ == "__main__":
-    CONFIG: CONFIG_DICT = json.load(
-        open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
-    )
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    CONFIG: CONFIG_DICT = json.load(open(CURRENT_DIR + "/config.json", "r"))
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
 
     session = None
+    sessionId = None
+    if os.path.exists(CURRENT_DIR + "/session"):
+        sessionId = open(CURRENT_DIR + "/session", "r").read()
+
     while session is None:
         try:
-            session = TSRSession()
+            session = TSRSession(sessionId)
+            if hasattr(session, "tsrdlsession"):
+                open(CURRENT_DIR + "/session", "w").write(session.tsrdlsession)
         except InvalidCaptchaCode:
-            pass
+            sessionId = None
 
     while True:
         pastedText = clipboard.paste()

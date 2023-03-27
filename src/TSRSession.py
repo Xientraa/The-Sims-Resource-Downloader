@@ -1,6 +1,8 @@
-import requests, webbrowser
+import requests, webbrowser, os
 from exceptions import InvalidCaptchaCode
 from typing import Optional
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TSRSession:
@@ -61,13 +63,13 @@ class TSRSession:
 
     @classmethod
     def __saveCaptchaImage(self):
-        with open("./captcha.png", "wb") as f:
+        with open(f"{CURRENT_DIR}/captcha.png", "wb") as f:
             for chunk in self.__getCaptchaImage().iter_content(1024 * 1024):
                 f.write(chunk)
 
     @classmethod
     def __openImageInBrowser(self) -> None:
-        webbrowser.open_new_tab("./captcha.png")
+        webbrowser.open_new_tab(f"{CURRENT_DIR}/captcha.png")
 
     @classmethod
     def __getTSRDLTicketCookie(self) -> str:

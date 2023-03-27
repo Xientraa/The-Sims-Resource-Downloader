@@ -165,3 +165,6 @@ poetry.toml
 
 # ruff
 .ruff_cache/
+
+captcha.png
+session
