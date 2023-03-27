@@ -4,11 +4,12 @@ from logger import Logger
 from exceptions import *
 from typings import *
 from multiprocessing import Pool
+from TSRSession import TSRSession
 import clipboard, time, json, os
 
 
 def processTarget(url: TSRUrl):
-    downloader = TSRDownload(url)
+    downloader = TSRDownload(url, session)
     if downloader.download():
         Logger.info(f"Completed download for: {url.url}")
 
@@ -28,6 +29,13 @@ if __name__ == "__main__":
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
+
+    session = None
+    while session is None:
+        try:
+            session = TSRSession()
+        except InvalidCaptchaCode:
+            pass
 
     while True:
         pastedText = clipboard.paste()
