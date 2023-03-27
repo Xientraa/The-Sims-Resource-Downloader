@@ -9,6 +9,7 @@ class TSRSession:
         self.session = requests.Session()
         if sessionId is not None:
             if self.__isValidSessionId(sessionId):
+                self.tsrdlsession = sessionId
                 return
 
         self.__getTSRDLTicketCookie()
@@ -16,6 +17,7 @@ class TSRSession:
         self.__openImageInBrowser()
         self.tsrdlsession = None
 
+        print("Please enter captcha code:")
         captchaInput = input(">> ")
         if self.__tryCaptchaCode(captchaInput):
             self.tsrdlsession = self.session.cookies.get_dict().get("tsrdlsession")
