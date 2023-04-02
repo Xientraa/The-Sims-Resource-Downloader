@@ -1,13 +1,8 @@
-import requests, time, json, os
-from TSRSession import TSRSession
+import requests, time
 from TSRUrl import TSRUrl
 from logger import Logger
 from exceptions import *
 from typings import *
-
-CONFIG: CONFIG_DICT = json.load(
-    open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
-)
 
 
 class TSRDownload:
@@ -21,7 +16,7 @@ class TSRDownload:
         self.__getTSRDLTicketCookie()
 
     @classmethod
-    def download(self) -> bool:
+    def download(self, downloadPath: str) -> str:
         Logger.info(f"Starting download for: {self.url.url}")
         timeToSleep = 15000 - (time.time() * 1000 - self.ticketInitializedTime)
         if timeToSleep > 0:
@@ -32,12 +27,12 @@ class TSRDownload:
         fileName = request.headers["Content-Disposition"][
             22:-1
         ]  # Remove 'attachment; filename="' from header
-        file = open(f"{CONFIG['downloadDirectory']}/{fileName}", "wb")
+        file = open(f"{downloadPath}/{fileName}", "wb")
 
         for chunk in request.iter_content(1024 * 1024):
             file.write(chunk)
         file.close()
-        return True
+        return fileName
 
     @classmethod
     def __getDownloadUrl(self) -> str:

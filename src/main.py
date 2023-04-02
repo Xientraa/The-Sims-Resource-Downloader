@@ -8,10 +8,10 @@ from TSRSession import TSRSession
 import clipboard, time, json, os
 
 
-def processTarget(url: TSRUrl, tsrdlsession: str):
+def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
     downloader = TSRDownload(url, tsrdlsession)
-    if downloader.download():
-        Logger.info(f"Completed download for: {url.url}")
+    downloader.download(downloadPath)
+    Logger.info(f"Completed download for: {url.url}")
 
     return url
 
@@ -55,7 +55,13 @@ if __name__ == "__main__":
                 Logger.info(f"Moved {url.url} from queue to downloading")
                 pool = Pool(1)
                 pool.apply_async(
-                    processTarget, args=[url, session.tsrdlsession], callback=callback
+                    processTarget,
+                    args=[
+                        url,
+                        session.tsrdlsession,
+                        CONFIG["downloadDirectory"],
+                    ],
+                    callback=callback,
                 )
 
                 if len(downloadQueue) == 0:
@@ -88,7 +94,11 @@ if __name__ == "__main__":
                         pool = Pool(1)
                         pool.apply_async(
                             processTarget,
-                            args=[url, session.tsrdlsession],
+                            args=[
+                                url,
+                                session.tsrdlsession,
+                                CONFIG["downloadDirectory"],
+                            ],
                             callback=callback,
                         )
             except InvalidURL:
