@@ -11,7 +11,7 @@ With this tool you can download multiple items at once, to download items copy t
 | Option | Description | type |
 | - | - | - |
 | downloadDirectory | Path to a directory where the files will be downloaded to. | string |
-| maxDownloads | Limits the max amount of active downloads to the value set. | integer |
+| maxActiveDownloads | Limits the max amount of active downloads to the value set. | integer |
 
 ## Installing Requirements
 

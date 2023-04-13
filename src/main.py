@@ -46,7 +46,7 @@ if __name__ == "__main__":
         pastedText = clipboard.paste()
         if lastPastedText == pastedText:
             for url in downloadQueue:
-                if len(runningDownloads) == CONFIG["maxDownloads"]:
+                if len(runningDownloads) == CONFIG["maxActiveDownloads"]:
                     break
 
                 url = TSRUrl(url)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                     Logger.info(f"{url.url} has {len(requirements)} requirements")
 
                 for url in [url, *requirements]:
-                    if len(runningDownloads) == CONFIG["maxDownloads"]:
+                    if len(runningDownloads) == CONFIG["maxActiveDownloads"]:
                         Logger.info(
                             f"Added url to queue (#{len(downloadQueue)}): {url.url}"
                         )

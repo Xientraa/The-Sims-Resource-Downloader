@@ -1,4 +1,4 @@
 {
     "downloadDirectory": "./",
-    "maxDownloads": 4
+    "maxActiveDownloads": 4
 }
