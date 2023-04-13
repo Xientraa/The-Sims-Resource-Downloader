@@ -39,7 +39,11 @@ if __name__ == "__main__":
             session = TSRSession(sessionId)
             if hasattr(session, "tsrdlsession"):
                 open(CURRENT_DIR + "/session", "w").write(session.tsrdlsession)
+                Logger.info("Session with captcha successfully created")
         except InvalidCaptchaCode:
+            Logger.error(
+                "Invalid captcha code entered, please make sure the code is correct"
+            )
             sessionId = None
 
     while True:
