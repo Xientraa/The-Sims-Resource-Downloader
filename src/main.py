@@ -29,6 +29,11 @@ if __name__ == "__main__":
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
 
+    if not os.path.exists(CONFIG["downloadDirectory"]):
+        errorMessage = f"The directory: {CONFIG['downloadDirectory']} does not exist! Please make sure the directory exists or the directory is set correctly in the config."
+        Logger.error(errorMessage, True)
+        raise FileNotFoundError(errorMessage)
+
     session = None
     sessionId = None
     if os.path.exists(CURRENT_DIR + "/session"):
