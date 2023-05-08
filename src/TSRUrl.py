@@ -39,7 +39,7 @@ class TSRUrl:
             logger.debug(f"Converting {href} to TSRUrl")
             return TSRUrl(f"https://www.thesimsresource.com{href}")
 
-        logger.debug(f"Getting required items for {url}")
+        logger.debug(f"Getting required items for {url.url}")
         r = requests.get(f"https://www.thesimsresource.com/downloads/{url.itemId}")
         return list(
             map(
