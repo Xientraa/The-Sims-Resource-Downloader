@@ -2,7 +2,6 @@ import requests, time
 from TSRUrl import TSRUrl
 from logger import logger
 from exceptions import *
-from typings import *
 
 
 class TSRDownload:

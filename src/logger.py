@@ -1,6 +1,7 @@
 import logging, sys, traceback
 from typing import Type
 from types import TracebackType
+from config import CONFIG
 
 
 streamHandler = logging.StreamHandler(sys.stdout)
@@ -8,7 +9,7 @@ streamHandler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
 logging.basicConfig(
     format="[%(asctime)s] [%(levelname)s] %(message)s",
     filename="logs.log",
-    level=logging.INFO,
+    level=logging.DEBUG if CONFIG.get("debug") == True else logging.INFO,
 )
 logger = logging.getLogger(__name__)
 logger.addHandler(streamHandler)
