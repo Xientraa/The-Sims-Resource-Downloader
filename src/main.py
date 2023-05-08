@@ -1,6 +1,6 @@
 from TSRUrl import TSRUrl
 from TSRDownload import TSRDownload
-from logger import Logger
+from logger import logger
 from exceptions import *
 from typings import *
 from multiprocessing import Pool
@@ -11,7 +11,7 @@ import clipboard, time, json, os
 def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
     downloader = TSRDownload(url, tsrdlsession)
     downloader.download(downloadPath)
-    Logger.info(f"Completed download for: {url.url}")
+    logger.info(f"Completed download for: {url.url}")
 
     return url
 
@@ -19,7 +19,7 @@ def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
 def callback(url: TSRUrl):
     runningDownloads.remove(url.url)
     if len(runningDownloads) == 0:
-        Logger.info("All downloads have been completed")
+        logger.info("All downloads have been completed")
 
 
 if __name__ == "__main__":
@@ -30,9 +30,9 @@ if __name__ == "__main__":
     downloadQueue: list[str] = []
 
     if not os.path.exists(CONFIG["downloadDirectory"]):
-        errorMessage = f"The directory: {CONFIG['downloadDirectory']} does not exist! Please make sure the directory exists or the directory is set correctly in the config."
-        Logger.error(errorMessage, True)
-        raise FileNotFoundError(errorMessage)
+        raise FileNotFoundError(
+            f"The directory: {CONFIG['downloadDirectory']} does not exist! Please make sure the directory exists or the directory is set correctly in the config."
+        )
 
     session = None
     sessionId = None
@@ -44,9 +44,9 @@ if __name__ == "__main__":
             session = TSRSession(sessionId)
             if hasattr(session, "tsrdlsession"):
                 open(CURRENT_DIR + "/session", "w").write(session.tsrdlsession)
-                Logger.info("Session with captcha successfully created")
+                logger.info("Session with captcha successfully created")
         except InvalidCaptchaCode:
-            Logger.error(
+            logger.error(
                 "Invalid captcha code entered, please make sure the code is correct"
             )
             sessionId = None
@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 url = TSRUrl(url)
                 runningDownloads.append(url.url)
                 downloadQueue.remove(url.url)
-                Logger.info(f"Moved {url.url} from queue to downloading")
+                logger.info(f"Moved {url.url} from queue to downloading")
                 pool = Pool(1)
                 pool.apply_async(
                     processTarget,
@@ -74,27 +74,27 @@ if __name__ == "__main__":
                 )
 
                 if len(downloadQueue) == 0:
-                    Logger.info("Queue is now empty")
+                    logger.info("Queue is now empty")
         else:
             lastPastedText = pastedText
             if pastedText in runningDownloads:
-                Logger.info(f"Url is already being downloaded: {pastedText}")
+                logger.info(f"Url is already being downloaded: {pastedText}")
                 continue
             if pastedText in downloadQueue:
-                Logger.info(
+                logger.info(
                     f"Url is already in queue (#{downloadQueue.index(pastedText)}): {pastedText}"
                 )
 
             try:
                 url = TSRUrl(pastedText)
                 requirements = TSRUrl.getRequiredItems(url)
-                Logger.info(f"Found valid url in clipboard: {url.url}")
+                logger.info(f"Found valid url in clipboard: {url.url}")
                 if len(requirements) != 0:
-                    Logger.info(f"{url.url} has {len(requirements)} requirements")
+                    logger.info(f"{url.url} has {len(requirements)} requirements")
 
                 for url in [url, *requirements]:
                     if len(runningDownloads) == CONFIG["maxActiveDownloads"]:
-                        Logger.info(
+                        logger.info(
                             f"Added url to queue (#{len(downloadQueue)}): {url.url}"
                         )
                         downloadQueue.append(url.url)
