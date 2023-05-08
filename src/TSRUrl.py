@@ -1,4 +1,5 @@
 from exceptions import InvalidURL
+from logger import logger
 import re, requests
 
 
@@ -18,20 +19,27 @@ class TSRUrl:
             or re.search("(?<=/itemId/)[\d]+", url)
             or re.search("(?<=.com/downloads/)[\d]+", url)
         )
+        logger.debug(
+            f"Got ItemId: {itemId[0] if itemId is not None else 'None'} from Url: {url}"
+        )
         return None if itemId == None else int(itemId[0])
 
     @classmethod
     def __isValidUrl(self, url: str) -> bool:
-        return (
+        isUrlValid = (
             re.search("thesimsresource.com/", url) != None
             and self.__getItemId(url) != None
         )
+        logger.debug(f"Is url valid: {isUrlValid}")
+        return isUrlValid
 
     @staticmethod
     def getRequiredItems(url: "TSRUrl") -> list["TSRUrl"]:
         def convertHrefToTSRUrl(href: str) -> TSRUrl:
+            logger.debug(f"Converting {href} to TSRUrl")
             return TSRUrl(f"https://www.thesimsresource.com{href}")
 
+        logger.debug(f"Getting required items for {url.url}")
         r = requests.get(f"https://www.thesimsresource.com/downloads/{url.itemId}")
         return list(
             map(

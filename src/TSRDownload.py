@@ -1,28 +1,23 @@
 import requests, time, json, os, re
 from TSRSession import TSRSession
 from TSRUrl import TSRUrl
-from logger import Logger
+from logger import logger
 from exceptions import *
-from typings import *
-
-CONFIG: CONFIG_DICT = json.load(
-    open(os.path.dirname(os.path.abspath(__file__)) + "/config.json", "r")
-)
 
 
 class TSRDownload:
     @classmethod
-    def __init__(self, url: TSRUrl, session: TSRSession):
+    def __init__(self, url: TSRUrl, sessionId: str):
         self.session: requests.Session = requests.Session()
-        self.session.cookies.set("tsrdlsession", session.tsrdlsession)
+        self.session.cookies.set("tsrdlsession", sessionId)
 
         self.url: TSRUrl = url
         self.ticketInitializedTime: float = -1.0
         self.__getTSRDLTicketCookie()
 
     @classmethod
-    def download(self) -> bool:
-        Logger.info(f"Starting download for: {self.url.url}")
+    def download(self, downloadPath: str) -> str:
+        logger.info(f"Starting download for: {self.url.url}")
         timeToSleep = 15000 - (time.time() * 1000 - self.ticketInitializedTime)
         if timeToSleep > 0:
             time.sleep(timeToSleep / 1000)
@@ -31,8 +26,8 @@ class TSRDownload:
         fileName = self.__getFileName(downloadUrl)
 
         startingBytes = (
-            os.path.getsize(f"{CONFIG['downloadDirectory']}/{fileName}.part")
-            if os.path.exists(f"{CONFIG['downloadDirectory']}/{fileName}.part")
+            os.path.getsize(f"{downloadPath}/{fileName}.part")
+            if os.path.exists(f"{downloadPath}/{fileName}.part")
             else 0
         )
         request = self.session.get(
@@ -40,16 +35,16 @@ class TSRDownload:
             stream=True,
             headers={"Range": f"bytes={startingBytes}-"},
         )
-        file = open(f"{CONFIG['downloadDirectory']}/{fileName}.part", "wb")
+        file = open(f"{downloadPath}/{fileName}.part", "wb")
 
         for chunk in request.iter_content(1024 * 128):
             file.write(chunk)
         file.close()
         os.rename(
-            f"{CONFIG['downloadDirectory']}/{fileName}.part",
-            f"{CONFIG['downloadDirectory']}/{fileName}",
+            f"{downloadPath}/{fileName}.part",
+            f"{downloadPath}/{fileName}",
         )
-        return True
+        return fileName
 
     @classmethod
     def __getFileName(self, downloadUrl: str) -> str:
@@ -76,7 +71,7 @@ class TSRDownload:
 
     @classmethod
     def __getTSRDLTicketCookie(self) -> str:
-        Logger.info(f"Getting 'tsrdlticket' cookie for: {self.url.url}")
+        logger.info(f"Getting 'tsrdlticket' cookie for: {self.url.url}")
         response = self.session.get(
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )
