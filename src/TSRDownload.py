@@ -1,8 +1,7 @@
 import requests, time
 from TSRUrl import TSRUrl
-from logger import Logger
+from logger import logger
 from exceptions import *
-from typings import *
 
 
 class TSRDownload:
@@ -17,7 +16,7 @@ class TSRDownload:
 
     @classmethod
     def download(self, downloadPath: str) -> str:
-        Logger.info(f"Starting download for: {self.url.url}")
+        logger.info(f"Starting download for: {self.url.url}")
         timeToSleep = 15000 - (time.time() * 1000 - self.ticketInitializedTime)
         if timeToSleep > 0:
             time.sleep(timeToSleep / 1000)
@@ -52,7 +51,7 @@ class TSRDownload:
 
     @classmethod
     def __getTSRDLTicketCookie(self) -> str:
-        Logger.info(f"Getting 'tsrdlticket' cookie for: {self.url.url}")
+        logger.info(f"Getting 'tsrdlticket' cookie for: {self.url.url}")
         response = self.session.get(
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )

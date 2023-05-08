@@ -1,34 +1,27 @@
-import logging
-from typing import Optional
+import logging, sys, traceback
+from typing import Type
+from types import TracebackType
+from config import CONFIG
 
+
+streamHandler = logging.StreamHandler(sys.stdout)
+streamHandler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
 logging.basicConfig(
     format="[%(asctime)s] [%(levelname)s] %(message)s",
     filename="logs.log",
-    level=logging.DEBUG,
+    level=logging.DEBUG if CONFIG.get("debug") == True else logging.INFO,
 )
+logger = logging.getLogger(__name__)
+logger.addHandler(streamHandler)
 
 
-class Logger:
-    @staticmethod
-    def info(message: str, silent: Optional[bool] = None):
-        logging.info(message)
-        if not silent:
-            print(f"[INFO] {message}")
+def exceptionHandler(
+    type: Type[BaseException], value: BaseException, tb: TracebackType
+):
+    for line in traceback.TracebackException(type, value, tb).format(chain=True):
+        logging.exception(line)
+    logging.exception(type, value, tb)
+    sys.__excepthook__(type, value, tb)
 
-    @staticmethod
-    def error(message: str, silent: Optional[bool] = None):
-        logging.error(message)
-        if not silent:
-            print(f"[ERROR] {message}")
 
-    @staticmethod
-    def warn(message: str, silent: Optional[bool] = None):
-        logging.warn(message)
-        if not silent:
-            print(f"[WARN] {message}")
-
-    @staticmethod
-    def exception(message: str, silent: Optional[bool] = None):
-        logging.exception(message)
-        if not silent:
-            print(f"[EXCEPTION] {message}")
+sys.excepthook = exceptionHandler
