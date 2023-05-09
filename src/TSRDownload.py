@@ -1,5 +1,4 @@
-import requests, time, json, os, re
-from TSRSession import TSRSession
+import requests, time, os, re
 from TSRUrl import TSRUrl
 from logger import logger
 from exceptions import *
