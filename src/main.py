@@ -89,50 +89,51 @@ if __name__ == "__main__":
                     logger.info("Queue is now empty")
         else:
             lastPastedText = pastedText
-            if pastedText in runningDownloads:
-                logger.info(f"Url is already being downloaded: {pastedText}")
-                continue
-            if pastedText in downloadQueue:
-                logger.info(
-                    f"Url is already in queue (#{downloadQueue.index(pastedText)}): {pastedText}"
-                )
+            for line in pastedText.split("\n"):
+                if line in runningDownloads:
+                    logger.info(f"Url is already being downloaded: {line}")
+                    continue
+                if line in downloadQueue:
+                    logger.info(
+                        f"Url is already in queue (#{downloadQueue.index(line)}): {line}"
+                    )
 
-            try:
-                url = TSRUrl(pastedText)
-                requirements = TSRUrl.getRequiredItems(url)
-                logger.info(f"Found valid url in clipboard: {url.url}")
-                if len(requirements) != 0:
-                    logger.info(f"{url.url} has {len(requirements)} requirements")
+                try:
+                    url = TSRUrl(line)
+                    requirements = TSRUrl.getRequiredItems(url)
+                    logger.info(f"Found valid url in clipboard: {url.url}")
+                    if len(requirements) != 0:
+                        logger.info(f"{url.url} has {len(requirements)} requirements")
 
-                for url in [url, *requirements]:
-                    if url.url in runningDownloads:
-                        logger.info(f"Url is already being downloaded: {url.url}")
-                        continue
-                    if url.url in downloadQueue:
-                        logger.info(
-                            f"Url is already in queue (#{downloadQueue.index(url.url)}): {url.url}"
-                        )
-                        continue
+                    for url in [url, *requirements]:
+                        if url.url in runningDownloads:
+                            logger.info(f"Url is already being downloaded: {url.url}")
+                            continue
+                        if url.url in downloadQueue:
+                            logger.info(
+                                f"Url is already in queue (#{downloadQueue.index(url.url)}): {url.url}"
+                            )
+                            continue
 
-                    if len(runningDownloads) == CONFIG["maxActiveDownloads"]:
-                        logger.info(
-                            f"Added url to queue (#{len(downloadQueue)}): {url.url}"
-                        )
-                        downloadQueue.append(url.url)
-                    else:
-                        runningDownloads.append(url.url)
-                        pool = Pool(1)
-                        pool.apply_async(
-                            processTarget,
-                            args=[
-                                url,
-                                session.tsrdlsession,
-                                CONFIG["downloadDirectory"],
-                            ],
-                            callback=callback,
-                        )
-                updateUrlFile()
-            except InvalidURL:
-                pass
+                        if len(runningDownloads) == CONFIG["maxActiveDownloads"]:
+                            logger.info(
+                                f"Added url to queue (#{len(downloadQueue)}): {url.url}"
+                            )
+                            downloadQueue.append(url.url)
+                        else:
+                            runningDownloads.append(url.url)
+                            pool = Pool(1)
+                            pool.apply_async(
+                                processTarget,
+                                args=[
+                                    url,
+                                    session.tsrdlsession,
+                                    CONFIG["downloadDirectory"],
+                                ],
+                                callback=callback,
+                            )
+                    updateUrlFile()
+                except InvalidURL:
+                    pass
 
         time.sleep(0.1)
