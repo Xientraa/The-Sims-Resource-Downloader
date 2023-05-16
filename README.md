@@ -12,6 +12,7 @@ With this tool you can download multiple items at once, to download items copy t
 | - | - | - |
 | downloadDirectory | Path to a directory where the files will be downloaded to. | string |
 | maxActiveDownloads | Limits the max amount of active downloads to the value set. | integer |
+| saveDownloadQueue | Toggles saving & loading of active downloads & queued downloads. | boolean |
 | debug | Toggles debug messages from the logger. | boolean |
 
 ## Installing Requirements

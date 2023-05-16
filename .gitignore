@@ -166,5 +166,7 @@ poetry.toml
 # ruff
 .ruff_cache/
 
+# Script Created Files
+src/urls.txt
 captcha.png
 session

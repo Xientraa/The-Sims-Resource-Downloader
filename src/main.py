@@ -18,8 +18,16 @@ def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
 
 def callback(url: TSRUrl):
     runningDownloads.remove(url.url)
+    updateUrlFile()
     if len(runningDownloads) == 0:
         logger.info("All downloads have been completed")
+
+
+def updateUrlFile():
+    if CONFIG["saveDownloadQueue"]:
+        open(CURRENT_DIR + "/urls.txt", "w").write(
+            "\n".join([*runningDownloads, *downloadQueue])
+        )
 
 
 if __name__ == "__main__":
@@ -48,6 +56,12 @@ if __name__ == "__main__":
                 "Invalid captcha code entered, please make sure the code is correct"
             )
             sessionId = None
+
+    if os.path.exists(CURRENT_DIR + "/urls.txt") and CONFIG["saveDownloadQueue"]:
+        for url in open(CURRENT_DIR + "/urls.txt", "r").read().split("\n"):
+            if url.strip() == "" or url in downloadQueue:
+                continue
+            downloadQueue.append(url.strip())
 
     while True:
         pastedText = clipboard.paste()
@@ -91,6 +105,15 @@ if __name__ == "__main__":
                     logger.info(f"{url.url} has {len(requirements)} requirements")
 
                 for url in [url, *requirements]:
+                    if url.url in runningDownloads:
+                        logger.info(f"Url is already being downloaded: {url.url}")
+                        continue
+                    if url.url in downloadQueue:
+                        logger.info(
+                            f"Url is already in queue (#{downloadQueue.index(url.url)}): {url.url}"
+                        )
+                        continue
+
                     if len(runningDownloads) == CONFIG["maxActiveDownloads"]:
                         logger.info(
                             f"Added url to queue (#{len(downloadQueue)}): {url.url}"
@@ -108,6 +131,7 @@ if __name__ == "__main__":
                             ],
                             callback=callback,
                         )
+                updateUrlFile()
             except InvalidURL:
                 pass
 
