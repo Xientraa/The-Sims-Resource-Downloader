@@ -1,3 +1,4 @@
+from __future__ import annotations
 import requests, time, os, re
 from TSRUrl import TSRUrl
 from logger import logger

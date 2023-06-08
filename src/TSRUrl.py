@@ -1,3 +1,4 @@
+from __future__ import annotations
 from exceptions import InvalidURL
 from logger import logger
 import re, requests

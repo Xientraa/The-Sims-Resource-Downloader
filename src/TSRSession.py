@@ -1,3 +1,4 @@
+from __future__ import annotations
 import requests, webbrowser, os
 from exceptions import InvalidCaptchaCode
 from typing import Optional
