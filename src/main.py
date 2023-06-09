@@ -1,3 +1,4 @@
+from __future__ import annotations
 from TSRUrl import TSRUrl
 from TSRDownload import TSRDownload
 from logger import logger
