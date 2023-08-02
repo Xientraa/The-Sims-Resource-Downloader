@@ -23,23 +23,29 @@ class TSRDownload:
             time.sleep(timeToSleep / 1000)
 
         downloadUrl = self.__getDownloadUrl()
+        logger.debug(f"Got downloadUrl: {downloadUrl}")
         fileName = self.__getFileName(downloadUrl)
+        logger.debug(f"Got fileName: {fileName}")
 
         startingBytes = (
             os.path.getsize(f"{downloadPath}/{fileName}.part")
             if os.path.exists(f"{downloadPath}/{fileName}.part")
             else 0
         )
+        logger.debug(f"Got startingBytes: {startingBytes}")
         request = self.session.get(
             downloadUrl,
             stream=True,
             headers={"Range": f"bytes={startingBytes}-"},
         )
+        logger.debug(f"Request status is: {request.status_code}")
         file = open(f"{downloadPath}/{fileName}.part", "wb")
 
-        for chunk in request.iter_content(1024 * 128):
+        for index, chunk in enumerate(request.iter_content(1024 * 128)):
+            logger.debug(f"Downloading chunk #{index} of {downloadUrl}")
             file.write(chunk)
         file.close()
+        logger.debug(f"Removing .part from file name: {fileName}")
         os.rename(
             f"{downloadPath}/{fileName}.part",
             f"{downloadPath}/{fileName}",

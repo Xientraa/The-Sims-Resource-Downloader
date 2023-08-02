@@ -18,6 +18,7 @@ def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
 
 
 def callback(url: TSRUrl):
+    logger.debug(f"Removing {url.url} from queue")
     runningDownloads.remove(url.url)
     updateUrlFile()
     if len(runningDownloads) == 0:
@@ -35,6 +36,11 @@ if __name__ == "__main__":
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
+
+    logger.debug(f'downloadDirectory: {CONFIG["downloadDirectory"]}')
+    logger.debug(f'maxActiveDownloads: {CONFIG["maxActiveDownloads"]}')
+    logger.debug(f'saveDownloadQueue: {CONFIG["saveDownloadQueue"]}')
+    logger.debug(f'debug: {CONFIG["debug"]}')
 
     if not os.path.exists(CONFIG["downloadDirectory"]):
         raise FileNotFoundError(
