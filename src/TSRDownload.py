@@ -46,10 +46,15 @@ class TSRDownload:
             file.write(chunk)
         file.close()
         logger.debug(f"Removing .part from file name: {fileName}")
-        os.rename(
-            f"{downloadPath}/{fileName}.part",
-            f"{downloadPath}/{fileName}",
-        )
+        if os.path.exists(f"{downloadPath}/{fileName}"):
+            logger.debug(f"{downloadPath}/{fileName} Already exists! Replacing file")
+            os.replace(f"{downloadPath}/{fileName}.part", f"{downloadPath}/{fileName}")
+        else:
+            logger.debug(f"{downloadPath}/{fileName} doesn't exist! Renaming file")
+            os.rename(
+                f"{downloadPath}/{fileName}.part",
+                f"{downloadPath}/{fileName}",
+            )
         return fileName
 
     @classmethod
