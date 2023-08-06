@@ -10,14 +10,18 @@ import clipboard, time, os
 
 
 def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
-    downloader = TSRDownload(url, tsrdlsession)
-    downloader.download(downloadPath)
-    logger.info(f"Completed download for: {url.url}")
+    try:
+        downloader = TSRDownload(url, tsrdlsession)
+        downloader.download(downloadPath)
+        logger.info(f"Completed download for: {url.url}")
+    except Exception as e:
+        logger.error(e)
 
     return url
 
 
 def callback(url: TSRUrl):
+    logger.debug(f"Removing {url.url} from queue")
     runningDownloads.remove(url.url)
     updateUrlFile()
     if len(runningDownloads) == 0:
@@ -25,6 +29,7 @@ def callback(url: TSRUrl):
 
 
 def updateUrlFile():
+    logger.debug(f"Updating URL file")
     if CONFIG["saveDownloadQueue"]:
         open(CURRENT_DIR + "/urls.txt", "w").write(
             "\n".join([*runningDownloads, *downloadQueue])
@@ -35,6 +40,11 @@ if __name__ == "__main__":
     lastPastedText = ""
     runningDownloads: list[str] = []
     downloadQueue: list[str] = []
+
+    logger.debug(f'downloadDirectory: {CONFIG["downloadDirectory"]}')
+    logger.debug(f'maxActiveDownloads: {CONFIG["maxActiveDownloads"]}')
+    logger.debug(f'saveDownloadQueue: {CONFIG["saveDownloadQueue"]}')
+    logger.debug(f'debug: {CONFIG["debug"]}')
 
     if not os.path.exists(CONFIG["downloadDirectory"]):
         raise FileNotFoundError(
