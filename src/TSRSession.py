@@ -87,6 +87,6 @@ class TSRSession:
     def __getTSRDLTicketCookie(self) -> str:
         logger.debug("Getting TSRDLTicket cookie")
         response = self.session.get(
-            f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid=1646133&format=zip"
+            f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid=1646133&setItems=&format=zip"
         )
         return response.cookies.get("tsrdlticket")
