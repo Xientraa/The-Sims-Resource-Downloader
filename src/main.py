@@ -118,7 +118,7 @@ if __name__ == "__main__":
                     continue
                 if url.itemId in downloadQueue:
                     logger.info(
-                        f"Url is already in queue (#{downloadQueue.index(line)}): {line}"
+                        f"Url is already in queue (#{downloadQueue.index(url.itemId)}): {line}"
                     )
                     continue
 
@@ -128,7 +128,7 @@ if __name__ == "__main__":
                     logger.info(f"{url.url} has {len(requirements)} requirements")
                 for url in [url, *requirements]:
                     if url.url in runningDownloads:
-                        logger.info(f"Url is already being downloaded: {url.url}")
+                        logger.info(f"Url is already being downloaded: {url.itemId}")
                         continue
                     if url.url in downloadQueue:
                         logger.info(
