@@ -145,6 +145,7 @@ if __name__ == "__main__":
                         + f"{url.url}"
                     )
                     vipItemIds.append(url.itemId)
+                    updateUrlFile()
                     continue
 
                 requirements = TSRUrl.getRequiredItems(url)
