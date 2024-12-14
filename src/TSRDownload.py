@@ -93,28 +93,29 @@ class TSRDownload:
 
     @classmethod
     def download(self, downloadPath: str) -> str:
-        logger.info(f"Starting download for: {self.url.url}")
+        logger.info(f"\n\n=== Starting download for: {self.url.url} ===")
         timeToSleep = 15000 - (time.time() * 1000 - self.ticketInitializedTime)
         if timeToSleep > 0:
+            logger.info(f"Waiting for {timeToSleep / 1000:.2f} seconds before starting...")
             time.sleep(timeToSleep / 1000)
 
         downloadUrl = self.__getDownloadUrl()
-        logger.debug(f"Got downloadUrl: {downloadUrl}")
+        logger.debug(f"Got download URL: {downloadUrl}")
         fileName = self.__getFileName(downloadUrl)
-        logger.debug(f"Got fileName: {fileName}")
+        logger.debug(f"Got file name: {fileName}")
 
         startingBytes = (
             os.path.getsize(f"{downloadPath}/{fileName}.part")
             if os.path.exists(f"{downloadPath}/{fileName}.part")
             else 0
         )
-        logger.debug(f"Got startingBytes: {startingBytes}")
+        logger.debug(f"Starting bytes: {startingBytes}")
         request = self.session.get(
             downloadUrl,
             stream=True,
             headers={"Range": f"bytes={startingBytes}-"},
         )
-        logger.debug(f"Request status is: {request.status_code}")
+        logger.debug(f"Request status: {request.status_code}")
 
         total_size = int(request.headers.get('content-length', 0)) + startingBytes  # Total size of the file
         with open(f"{downloadPath}/{fileName}.part", "wb") as file:
@@ -124,14 +125,16 @@ class TSRDownload:
                     file.write(chunk)
                     bar.update(len(chunk))  # Update progress bar
 
-        logger.debug(f"Removing .part from file name: {fileName}")
+        logger.debug(f"\nRenaming .part file to: {fileName}")
         if os.path.exists(f"{downloadPath}/{fileName}"):
-            logger.debug(f"{downloadPath}/{fileName} Already exists! Replacing file")
+            logger.debug(f"{downloadPath}/{fileName} already exists! Replacing file.")
             os.replace(f"{downloadPath}/{fileName}.part", f"{downloadPath}/{fileName}")
         else:
-            logger.debug(f"{downloadPath}/{fileName} doesn't exist! Renaming file")
+            logger.debug(f"{downloadPath}/{fileName} doesn't exist! Renaming file.")
             os.rename(
                 f"{downloadPath}/{fileName}.part",
                 f"{downloadPath}/{fileName}",
             )
+        
+        logger.info(f"\n=== Download completed: {fileName} ===\n")
         return fileName
