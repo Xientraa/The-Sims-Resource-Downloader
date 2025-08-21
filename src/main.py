@@ -33,7 +33,10 @@ def updateUrlFile():
     if CONFIG["saveDownloadQueue"]:
         open(CURRENT_DIR + "/urls.txt", "w").write(
             "\n".join(
-                [DETAILS_URL + str(id) for id in [*runningDownloads, *downloadQueue]]
+                [
+                    DETAILS_URL + str(id)
+                    for id in [*runningDownloads, *downloadQueue, *vipItemIds]
+                ]
             )
         )
 
@@ -43,6 +46,7 @@ if __name__ == "__main__":
     lastPastedText = ""
     runningDownloads: list[int] = []
     downloadQueue: list[int] = []
+    vipItemIds: list[int] = []
 
     logger.debug(f'downloadDirectory: {CONFIG["downloadDirectory"]}')
     logger.debug(f'maxActiveDownloads: {CONFIG["maxActiveDownloads"]}')
@@ -75,6 +79,11 @@ if __name__ == "__main__":
         for url in open(CURRENT_DIR + "/urls.txt", "r").read().split("\n"):
             try:
                 url = TSRUrl(url)
+                if url.isVipExclusive():
+                    logger.info(f"Url is still a VIP exclusive: {url.url}")
+                    vipItemIds.append(url.itemId)
+                    continue
+
                 if url.itemId in downloadQueue:
                     continue
                 downloadQueue.append(url.itemId)
@@ -118,12 +127,29 @@ if __name__ == "__main__":
                     continue
 
                 if url.itemId in runningDownloads:
-                    logger.info(f"Url is already being downloaded: {line}")
+                    logger.info(f"Url is already being downloaded: {url.url}")
                     continue
                 if url.itemId in downloadQueue:
                     logger.info(
-                        f"Url is already in queue (#{downloadQueue.index(url.itemId)}): {line}"
+                        f"Url is already in queue (#{downloadQueue.index(url.itemId)}): {url.url}"
                     )
+                    continue
+
+                if url.itemId in vipItemIds:
+                    logger.info(f"Url is currently a VIP exclusive: {url.url}")
+                    continue
+                elif url.isVipExclusive():
+                    logger.info(
+                        "Url is currently a VIP exclusive, "
+                        + (
+                            "storing url for later: "
+                            if CONFIG["saveDownloadQueue"]
+                            else "unable to download: "
+                        )
+                        + f"{url.url}"
+                    )
+                    vipItemIds.append(url.itemId)
+                    updateUrlFile()
                     continue
 
                 requirements = TSRUrl.getRequiredItems(url)

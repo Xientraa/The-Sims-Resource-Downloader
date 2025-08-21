@@ -5,6 +5,10 @@ from logger import logger
 from exceptions import *
 
 
+def stripForbiddenCharacters(string: str) -> str:
+    return re.sub(r'[\\<>/:"|?*]', "", string)
+
+
 class TSRDownload:
     @classmethod
     def __init__(self, url: TSRUrl, sessionId: str):
@@ -24,7 +28,7 @@ class TSRDownload:
 
         downloadUrl = self.__getDownloadUrl()
         logger.debug(f"Got downloadUrl: {downloadUrl}")
-        fileName = self.__getFileName(downloadUrl)
+        fileName = stripForbiddenCharacters(self.__getFileName(downloadUrl))
         logger.debug(f"Got fileName: {fileName}")
 
         startingBytes = (
