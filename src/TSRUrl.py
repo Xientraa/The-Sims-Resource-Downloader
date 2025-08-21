@@ -34,6 +34,10 @@ class TSRUrl:
         logger.debug(f"Is url valid: {isUrlValid}")
         return isUrlValid
 
+    def isVipExclusive(self) -> bool:
+        r = requests.get(self.url)
+        return "VIP Exclusive" in r.text
+
     @staticmethod
     def getRequiredItems(url: "TSRUrl") -> list["TSRUrl"]:
         def convertHrefToTSRUrl(href: str) -> TSRUrl:
