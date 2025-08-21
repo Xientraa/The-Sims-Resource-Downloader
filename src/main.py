@@ -66,7 +66,7 @@ if __name__ == "__main__":
     while session is None:
         try:
             session = TSRSession(sessionId)
-            if hasattr(session, "tsrdlsession"):
+            if hasattr(session, "tsrdlsession") and session.tsrdlsession != "":
                 open(CURRENT_DIR + "/session", "w").write(session.tsrdlsession)
                 logger.info("Session with captcha successfully created")
         except InvalidCaptchaCode:
@@ -89,6 +89,10 @@ if __name__ == "__main__":
                 downloadQueue.append(url.itemId)
             except InvalidURL:
                 continue
+
+    logger.info(
+        "The tool is now ready to be used. Simply copy links from The Sims Resource and the tool will automatically download them for you."
+    )
 
     while True:
         pastedText = clipboard.paste()

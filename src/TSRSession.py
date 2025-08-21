@@ -19,10 +19,13 @@ class TSRSession:
                 self.tsrdlsession = sessionId
                 return
 
+        self.tsrdlsession = ""
         self.__getTSRDLTicketCookie()
-        self.__saveCaptchaImage()
+        try:
+            self.__saveCaptchaImage()
+        except Exception as e:
+            return
         self.__openImageInBrowser()
-        self.tsrdlsession = None
 
         print("Please enter captcha code:")
         captchaInput = input(">> ")
@@ -75,8 +78,12 @@ class TSRSession:
     @classmethod
     def __saveCaptchaImage(self):
         logger.debug("Saving captcha image")
+        captcha_image = self.__getCaptchaImage()
+        if len(captcha_image.content) == 0:
+            raise Exception("Captcha has a length of 0.")
+
         with open(f"{CURRENT_DIR}/captcha.png", "wb") as f:
-            for chunk in self.__getCaptchaImage().iter_content(1024 * 1024):
+            for chunk in captcha_image.iter_content(1024 * 1024):
                 f.write(chunk)
 
     @classmethod
