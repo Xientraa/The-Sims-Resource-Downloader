@@ -64,7 +64,7 @@ class TSRDownload:
     @classmethod
     def __getFileName(self, downloadUrl: str) -> str:
         return re.search(
-            '(?<=filename=").+(?=")',
+            r'(?<=filename=").+(?=")',
             requests.get(downloadUrl, stream=True).headers["Content-Disposition"],
         )[0]
 

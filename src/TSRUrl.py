@@ -16,9 +16,9 @@ class TSRUrl:
     @classmethod
     def __getItemId(self, url: str) -> int | None:
         itemId = (
-            re.search("(?<=/id/)[\d]+", url)
-            or re.search("(?<=/itemId/)[\d]+", url)
-            or re.search("(?<=.com/downloads/)[\d]+", url)
+            re.search(r"(?<=/id/)[\d]+", url)
+            or re.search(r"(?<=/itemId/)[\d]+", url)
+            or re.search(r"(?<=.com/downloads/)[\d]+", url)
         )
         logger.debug(
             f"Got ItemId: {itemId[0] if itemId is not None else 'None'} from Url: {url}"
@@ -28,11 +28,15 @@ class TSRUrl:
     @classmethod
     def __isValidUrl(self, url: str) -> bool:
         isUrlValid = (
-            re.search("thesimsresource.com/", url) != None
+            re.search(r"thesimsresource.com/", url) != None
             and self.__getItemId(url) != None
         )
         logger.debug(f"Is url valid: {isUrlValid}")
         return isUrlValid
+
+    def isVipExclusive(self) -> bool:
+        r = requests.get(self.url)
+        return "VIP Exclusive" in r.text
 
     @staticmethod
     def getRequiredItems(url: "TSRUrl") -> list["TSRUrl"]:
@@ -46,7 +50,7 @@ class TSRUrl:
             map(
                 convertHrefToTSRUrl,
                 re.findall(
-                    '(?<=<li class="required-download-item"><a href=")/downloads/[\d]+(?=")',
+                    r'(?<=<li class="required-download-item"><a href=")/downloads/[\d]+(?=")',
                     r.text,
                 ),
             )
