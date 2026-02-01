@@ -3,8 +3,7 @@ import requests, webbrowser, os
 from exceptions import InvalidCaptchaCode
 from typing import Optional
 from logger import logger
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+from config import STATE_DIR
 
 
 class TSRSession:
@@ -82,13 +81,13 @@ class TSRSession:
         if len(captcha_image.content) == 0:
             raise Exception("Captcha has a length of 0.")
 
-        with open(f"{CURRENT_DIR}/captcha.png", "wb") as f:
+        with open(f"{STATE_DIR}/captcha.png", "wb") as f:
             for chunk in captcha_image.iter_content(1024 * 1024):
                 f.write(chunk)
 
     @classmethod
     def __openImageInBrowser(self) -> None:
-        webbrowser.open_new_tab(f"{CURRENT_DIR}/captcha.png")
+        webbrowser.open_new_tab(f"{STATE_DIR}/captcha.png")
 
     @classmethod
     def __getTSRDLTicketCookie(self) -> str:

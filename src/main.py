@@ -5,7 +5,7 @@ from logger import logger
 from exceptions import *
 from multiprocessing import Pool
 from TSRSession import TSRSession
-from config import CONFIG, CURRENT_DIR
+from config import CONFIG, STATE_DIR
 import clipboard, time, os
 
 
@@ -31,7 +31,7 @@ def callback(url: TSRUrl):
 def updateUrlFile():
     logger.debug(f"Updating URL file")
     if CONFIG["saveDownloadQueue"]:
-        open(CURRENT_DIR + "/urls.txt", "w").write(
+        open(STATE_DIR / "urls.txt", "w").write(
             "\n".join(
                 [
                     DETAILS_URL + str(id)
@@ -60,14 +60,14 @@ if __name__ == "__main__":
 
     session = None
     sessionId = None
-    if os.path.exists(CURRENT_DIR + "/session"):
-        sessionId = open(CURRENT_DIR + "/session", "r").read()
+    if os.path.exists(STATE_DIR / "session"):
+        sessionId = open(STATE_DIR / "session", "r").read()
 
     while session is None:
         try:
             session = TSRSession(sessionId)
             if hasattr(session, "tsrdlsession") and session.tsrdlsession != "":
-                open(CURRENT_DIR + "/session", "w").write(session.tsrdlsession)
+                open(STATE_DIR / "session", "w").write(session.tsrdlsession)
                 logger.info("Session with captcha successfully created")
         except InvalidCaptchaCode:
             logger.error(
@@ -75,8 +75,8 @@ if __name__ == "__main__":
             )
             sessionId = None
 
-    if os.path.exists(CURRENT_DIR + "/urls.txt") and CONFIG["saveDownloadQueue"]:
-        for url in open(CURRENT_DIR + "/urls.txt", "r").read().split("\n"):
+    if os.path.exists(STATE_DIR / "urls.txt") and CONFIG["saveDownloadQueue"]:
+        for url in open(STATE_DIR / "urls.txt", "r").read().split("\n"):
             try:
                 url = TSRUrl(url)
                 if url.isVipExclusive():
