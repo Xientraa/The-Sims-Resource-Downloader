@@ -12,12 +12,21 @@ def stripForbiddenCharacters(string: str) -> str:
 class TSRDownload:
     @classmethod
     def __init__(self, url: TSRUrl, sessionId: str):
+        self.TSRDLTicket = ""
         self.url: TSRUrl = url
+        self.sessionId = sessionId
+        self.ticketInitializedTime = -1.0
         self.session: requests.Session = requests.Session()
+
+    @classmethod
+    def init(self):
+        logger.info(f"Initializing TSRDownload for: {self.url.url}")
         self.TSRDLTicket = self.__getTSRDLTicket()
-        self.session.cookies.set("tsrdlsession", sessionId or  self.__getTSRDLTicketCookie())
-        self.ticketInitializedTime: float = -1.0
-        
+        self.session.cookies.set(
+            "tsrdlsession",
+            self.sessionId or self.__getTSRDLTicketCookie()
+        )
+        self.ticketInitializedTime = time.time() * 1000
 
     @classmethod
     def download(self, downloadPath: str) -> str:
