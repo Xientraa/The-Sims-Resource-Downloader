@@ -98,7 +98,6 @@ class TSRDownload:
         logger.info(f"Getting 'tsrdlticket' cookie for: {self.url.url}")
         url = f"{self.url.downloadUrl}/ticket/{self.TSRDLTicket}"
         response = self.session.get(url)
-        self.ticketInitializedTime = time.time() * 1000
         set_cookie = response.headers.get("Set-Cookie")
         return set_cookie.split(";")[0].split("=")[1] if set_cookie else ""
     
@@ -108,5 +107,4 @@ class TSRDownload:
         response = self.session.get(
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )
-        self.ticketInitializedTime = time.time() * 1000
         return response.json()['ticket']
