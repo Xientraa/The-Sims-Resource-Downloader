@@ -12,12 +12,21 @@ def stripForbiddenCharacters(string: str) -> str:
 class TSRDownload:
     @classmethod
     def __init__(self, url: TSRUrl, sessionId: str):
-        self.session: requests.Session = requests.Session()
-        self.session.cookies.set("tsrdlsession", sessionId)
-
+        self.TSRDLTicket = ""
         self.url: TSRUrl = url
-        self.ticketInitializedTime: float = -1.0
-        self.__getTSRDLTicketCookie()
+        self.sessionId = sessionId
+        self.ticketInitializedTime = -1.0
+        self.session: requests.Session = requests.Session()
+
+    @classmethod
+    def init(self):
+        logger.info(f"Initializing TSRDownload for: {self.url.url}")
+        self.TSRDLTicket = self.__getTSRDLTicket()
+        self.session.cookies.set(
+            "tsrdlsession",
+            self.sessionId or self.__getTSRDLTicketCookie()
+        )
+        self.ticketInitializedTime = time.time() * 1000
 
     @classmethod
     def download(self, downloadPath: str) -> str:
@@ -71,7 +80,7 @@ class TSRDownload:
     @classmethod
     def __getDownloadUrl(self) -> str:
         response = self.session.get(
-            f"https://www.thesimsresource.com/ajax.php?c=downloads&a=getdownloadurl&ajax=1&itemid={self.url.itemId}&mid=0&lk=0",
+            f"https://www.thesimsresource.com/ajax.php?c=downloads&a=getdownloadurl&ajax=1&itemid={self.url.itemId}&mid=0&lk=0&ticket={self.TSRDLTicket}",
             cookies=self.session.cookies,
         )
         responseJSON = response.json()
@@ -87,9 +96,15 @@ class TSRDownload:
     @classmethod
     def __getTSRDLTicketCookie(self) -> str:
         logger.info(f"Getting 'tsrdlticket' cookie for: {self.url.url}")
+        url = f"{self.url.downloadUrl}/ticket/{self.TSRDLTicket}"
+        response = self.session.get(url)
+        set_cookie = response.headers.get("Set-Cookie")
+        return set_cookie.split(";")[0].split("=")[1] if set_cookie else ""
+    
+    @classmethod
+    def __getTSRDLTicket(self) -> str:
+        logger.info(f"Getting 'tsrdlticket' for: {self.url.url}")
         response = self.session.get(
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )
-        self.session.get(self.url.downloadUrl)
-        self.ticketInitializedTime = time.time() * 1000
-        return response.cookies.get("tsrdlticket")
+        return response.json()['ticket']

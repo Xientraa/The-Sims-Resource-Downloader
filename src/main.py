@@ -12,6 +12,7 @@ import clipboard, time, os
 def processTarget(url: TSRUrl, tsrdlsession: str, downloadPath: str):
     try:
         downloader = TSRDownload(url, tsrdlsession)
+        downloader.init()
         downloader.download(downloadPath)
         logger.info(f"Completed download for: {url.url}")
     except Exception as e:
