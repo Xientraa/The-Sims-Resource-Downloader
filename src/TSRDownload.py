@@ -107,4 +107,5 @@ class TSRDownload:
         response = self.session.get(
             f"https://www.thesimsresource.com/ajax.php?c=downloads&a=initDownload&itemid={self.url.itemId}&format=zip"
         )
-        return response.json()['ticket']
+        ticket = response.json()['url'].split('/')[-1]
+        return ticket
