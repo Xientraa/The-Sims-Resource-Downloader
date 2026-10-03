@@ -24,6 +24,7 @@ class TSRSession:
         try:
             self.__saveCaptchaImage()
         except Exception as e:
+            logger.info(f"Skipping captcha: {e}")
             return
         self.__openImageInBrowser()
 
@@ -81,6 +82,12 @@ class TSRSession:
         captcha_image = self.__getCaptchaImage()
         if len(captcha_image.content) == 0:
             raise Exception("Captcha has a length of 0.")
+        if captcha_image.status_code != 200 or not captcha_image.headers.get(
+            "Content-Type", ""
+        ).startswith("image/"):
+            raise Exception(
+                f"Captcha unavailable (HTTP {captcha_image.status_code})."
+            )
 
         with open(f"{CURRENT_DIR}/captcha.png", "wb") as f:
             for chunk in captcha_image.iter_content(1024 * 1024):
