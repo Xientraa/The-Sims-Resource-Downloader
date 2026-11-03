@@ -35,7 +35,10 @@ class TSRUrl:
         return isUrlValid
 
     def isVipExclusive(self) -> bool:
-        r = requests.get(self.url)
+        if not self.url.startswith("https://"):
+            r = requests.get("https://" + self.url)
+        else:
+            r = requests.get(self.url)
         return "VIP Exclusive" in r.text
 
     @staticmethod
